@@ -29,7 +29,7 @@ const useAssociation = (props) => {
   if (typeof association === 'string') {
     return getCollectionField(association);
   } else if (association?.collectionName && association?.name) {
-    return getCollectionField(`${association?.collectionName}.${association?.name}`);
+    return getCollectionField(`${association?.collectionName}.${association?.name}`) || association;
   }
 };
 
@@ -39,7 +39,6 @@ const useResource = (props: UseResourceProps) => {
   const api = useAPIClient();
   const association = useAssociation(props);
   const sourceId = useSourceId?.();
-
   const field = useField<Field>();
   if (block === 'TableField') {
     const options = {

@@ -5,6 +5,9 @@ import { CollectionManagerContext } from '../context';
 export const useCollectionManager = () => {
   const { refreshCM, service, interfaces, collections } = useContext(CollectionManagerContext);
   const getCollectionField = (name: string) => {
+    if (typeof name === 'object') {
+      return  name;
+    }
     const [collectionName, fieldName] = name.split('.');
     if (!fieldName) {
       return;
