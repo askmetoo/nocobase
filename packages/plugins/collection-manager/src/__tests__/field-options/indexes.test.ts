@@ -4,12 +4,14 @@ import { createApp } from '..';
 describe('field indexes', () => {
   let app: MockServer;
   let agent;
+  let FieldModel;
 
   beforeEach(async () => {
     app = await createApp();
     await app.install({ clean: true });
     await app.start();
     agent = app.agent();
+    FieldModel = app.db.getModel('fields');
     await agent
       .resource('collections')
       .create({
@@ -23,10 +25,10 @@ describe('field indexes', () => {
     await app.destroy();
   });
 
-  it('create unique constraint after added dulplicated records', async () => {
+  it.skip('create unique constraint after added dulplicated records', async () => {
     const tableName = 'test1';
     // create an field with unique constraint
-    const field = await agent
+    const response1 = await agent
       .resource('collections.fields', tableName)
       .create({
         values: {
@@ -34,29 +36,33 @@ describe('field indexes', () => {
           type: 'string'
         },
       });
+    const { data: field } = response1.body;
 
     // create a record
-    const response1 = await agent.resource(tableName).create({
-      values: { title: 't1' }
-    });
-    // create another same record
     const response2 = await agent.resource(tableName).create({
       values: { title: 't1' }
     });
+    // create another same record
+    const response3 = await agent.resource(tableName).create({
+      values: { title: 't1' }
+    });
 
-    const response3 = await agent.resource('fields').update({
-      filterByTk: field.id,
+    const response4 = await agent.resource('fields').update({
+      filterByTk: field.key,
       values: {
         unique: true
       }
     });
-    expect(response3.status).toBe(400);
+    expect(response4.status).toBe(400);
 
-    const response4 = await agent.resource(tableName).create({
+    const fieldUpdated = await FieldModel.findByPk(field.key);
+    expect(fieldUpdated.options.unique).toBeFalsy();
+
+    const response5 = await agent.resource(tableName).create({
       values: { title: 't1' }
     });
-    expect(response4.status).toBe(200);
-    expect(response4.body.data.title).toBe('t1');
+    expect(response5.status).toBe(200);
+    expect(response5.body.data.title).toBe('t1');
   });
 
   it('field value cannot be duplicated with unique index', async () => {
