@@ -14,6 +14,5 @@ coverage
 /uploads
 .env.test
 docs-dist/
-.npmrc
 dist/
 docker/**/storage
