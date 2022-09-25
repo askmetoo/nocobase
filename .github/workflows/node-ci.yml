@@ -33,16 +33,15 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node_version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
-          cache: 'yarn'
-      - run: yarn install
-      # - run: yarn build
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
       - name: Test with postgres
-        run: yarn test
+        run: pnpm run test
         env:
           DB_DIALECT: postgres
           DB_HOST: postgres
@@ -51,12 +50,12 @@ jobs:
           DB_PASSWORD: password
           DB_DATABASE: nocobase
       - name: Test with Sqlite
-        run: yarn test
+        run: pnpm run test
         env:
           DB_DIALECT: sqlite
           DB_STORAGE: /tmp/db.sqlite
       - name: Test with MySQL
-        run: yarn test
+        run: pnpm run test
         env:
           DB_DIALECT: mysql
           DB_HOST: mysql
